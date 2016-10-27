@@ -34,14 +34,18 @@ ImageCollectionDelegate //第二步遵守协议
 }
 
 //第三步 实现代理方法，
-- (void)plusClick {
+
+- (void)chooseImages {
     UIImage *eight1 = [UIImage imageNamed:@"2"];
     UIImage *eight = [UIImage imageNamed:@"23"];
     self.scrollView.images = @[eight1,eight,eight1,eight,eight1,eight,eight1]; //第四步 传入图片
 }
 
+- (void)imageAtIndex:(NSInteger)index Images:(NSArray *)images ImageViews:(NSArray *)imageViews {
 
-- (void)crossClick {
+}
+
+- (void)deleteImageAtIndex:(NSInteger)index{
     
     
 }

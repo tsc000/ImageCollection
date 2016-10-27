@@ -11,15 +11,19 @@
 #define MARGIN (10) //边距
 #define WIDTH (self.frame.size.width)
 
+#define ImageCollectionResourceName(file) [@"ImageCollection.bundle" stringByAppendingPathComponent:file]
+
 @interface ImageCollection()
 {
     CGFloat _width;     //宽（宽高相等）
     NSInteger _oldLine; //添加图片之前的行数
 }
 
-//@property (nonatomic, assign) NSInteger columnCount;        //列数
-@property (nonatomic, strong) NSMutableArray *imgArray;     //存储所有图片和一个按钮
-@property (nonatomic, strong) NSMutableArray *imgViewArray; //存储所有图片
+///存储所有图片,外部有一个与其对应的只读imageArray
+@property (nonatomic, strong) NSMutableArray *imageArray;
+
+///存储所有图片和一个按钮
+@property (nonatomic, strong) NSMutableArray *imageViewArray;
 
 @end
 
@@ -28,55 +32,61 @@
 - (void)setImages:(NSArray *)images {
     _images = images;
     
-    //遍历传过来的图片数组，添加到imgArray里并创建imageView添加到scrollview内
+    [self.imageArray removeAllObjects];
+    
+    NSInteger count = self.imageViewArray.count;
+    
+    for (NSInteger i = 0; i < count - 1; i ++) {
+        [self.imageViewArray[0] removeFromSuperview];
+        
+        [self.imageViewArray removeObjectAtIndex:0];
+    }
+
+    //遍历传过来的图片数组，添加到imageArray里并创建imageView添加到scrollview内
     [_images enumerateObjectsUsingBlock:^(UIImage *  _Nonnull img, NSUInteger idx, BOOL * _Nonnull stop) {
        
-        [self.imgArray insertObject:img atIndex:self.imgArray.count];
+        [self.imageArray insertObject:img atIndex:self.imageArray.count];
         
-        [self createImageViewWithIdx:self.imgArray.count - 1];
+        [self createImageViewWithIdx:self.imageArray.count - 1];
         
         //判断图片是否超过设定数量
-        if (self.imgViewArray.count > self.limitCount) {
+        if (self.imageViewArray.count > self.limitCount) {
             
-            UIButton *button = [self.imgViewArray lastObject];
+            UIButton *button = [self.imageViewArray lastObject];
             
-            [UIView animateWithDuration:.1 animations:^{
-                button.hidden = true;
-            }];
-            
+            button.hidden = true;
+
             *stop = true;
         }
     }];
     
-    UIButton *button = [self.imgViewArray lastObject];
+    UIButton *button = [self.imageViewArray lastObject];
     
-    NSInteger line = (self.imgViewArray.count - 1) / self.columnCount; //整行
+    NSInteger line = (self.imageViewArray.count - 1) / self.columnCount; //整行
     
-    NSInteger column = (self.imgViewArray.count - 1) % self.columnCount;
+    NSInteger column = (self.imageViewArray.count - 1) % self.columnCount;
     
     button.frame = CGRectMake(column * (_width + MARGIN) + MARGIN, MARGIN + line * (_width + MARGIN), _width, _width);
+
     
-    //下面要判断达到限制的图片数量，加号按钮是否单独一行
-    NSInteger currentLine = 0;
-    if (button.isHidden == true && (self.imgViewArray.count - 1) % self.columnCount == 0 ) {
-        currentLine = self.imgViewArray.count/ self.columnCount ;
+    if (button.isHidden == true && (self.imageViewArray.count - 1) % self.columnCount == 0 ) {
+        _oldLine = self.imageViewArray.count/ self.columnCount ;
     }
     else
-        currentLine = self.imgViewArray.count/ self.columnCount + (self.imgViewArray.count % self.columnCount ? 1 : 0) ;
+        _oldLine = self.imageViewArray.count/ self.columnCount + (self.imageViewArray.count % self.columnCount ? 1 : 0) ;
     
     //改变scrollview的frame
- 
     [UIView animateWithDuration:.1 animations:^{
 
-        self.contentSize = CGSizeMake(self.contentSize.width,  (_width + MARGIN) * (currentLine ) + MARGIN);
+        self.contentSize = CGSizeMake(self.contentSize.width, (_width + MARGIN) * (_oldLine ) + MARGIN);
         
-        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.contentSize.height);
+        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, (_width + MARGIN) * _oldLine + MARGIN);
 
     }];
-
-    //保存旧行数
-    _oldLine = currentLine ;
-
+    
+//    self.contentSize = CGSizeMake(self.contentSize.width, (_width + MARGIN) * _oldLine + MARGIN);
+//    
+//    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, (_width + MARGIN) * _oldLine + MARGIN);
 }
 
 - (void)setColumnCount:(NSInteger)columnCount{
@@ -105,12 +115,6 @@
         
         self.limitCount = limit; //图片限制数量
         
-        _width = (WIDTH - (self.columnCount + 1) * MARGIN)/ self.columnCount;//每个图片的宽和高
-        
-        _oldLine = 1;
-        
-        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, WIDTH, _width + MARGIN * 2);
-        
         [self initial];
     }
     return self;
@@ -126,15 +130,21 @@
 
 - (void)initial {
 
-    self.imgArray = [NSMutableArray array];
+    self.imageArray = [NSMutableArray array];
     
-    self.imgViewArray = [NSMutableArray array];
+    self.imageViewArray = [NSMutableArray array];
+    
+    _oldLine = 1;
+    
+    _width = (WIDTH - (self.columnCount + 1) * MARGIN)/ self.columnCount;//每个图片的宽和高
+    
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, WIDTH, _width + MARGIN * 2);
     
     UIButton *button = [self createButtonWithFrame:CGRectMake(MARGIN, MARGIN, _width, _width)];
     
     [self addSubview:button];
     
-    [self.imgViewArray addObject:button]; //无图片显示一个button
+    [self.imageViewArray addObject:button]; //无图片显示一个button
 }
 
 - (UIImageView *)createImageViewWithIdx:(NSInteger )idx {
@@ -149,9 +159,14 @@
     
     imgView.backgroundColor = [UIColor whiteColor];
     
-    imgView.image = self.imgArray[idx];
+    imgView.image = self.imageArray[idx];
     
     imgView.userInteractionEnabled = true;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(handleTapGesture:)];
+    
+    [imgView addGestureRecognizer:tap];
+
     
     //添加叉号按钮
     UIButton *close = [self createCrossButton];
@@ -172,35 +187,35 @@
 
     [imgView addConstraints: @[top,right,width,height]];
     
-    [self.imgViewArray insertObject:imgView atIndex:idx];
+    [self.imageViewArray insertObject:imgView atIndex:idx];
     
     return imgView;
 }
 
-//叉号按钮
+///创建叉号按钮
 - (UIButton *)createCrossButton{
     
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
     
     btn.frame = CGRectMake(_width *0.7, 2, 20, 20);
     
-    [btn setImage:[UIImage imageNamed:@"close"] forState:UIControlStateNormal];
+    [btn setImage:[UIImage imageNamed:ImageCollectionResourceName(@"close")] forState:UIControlStateNormal];
     
-    [btn setImage:[UIImage imageNamed:@"closeax"] forState:UIControlStateHighlighted];
+    [btn setImage:[UIImage imageNamed:ImageCollectionResourceName(@"closeax")] forState:UIControlStateHighlighted];
     
     [btn addTarget:self action:@selector(closeButtonDidClick:) forControlEvents:UIControlEventTouchUpInside];
     
     return btn;
 }
 
-//加号按钮
+//创建加号按钮
 - (UIButton *)createButtonWithFrame:(CGRect)frame{
     
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
     
     btn.frame = frame;
 
-    [btn setImage:[UIImage imageNamed:@"+"] forState:UIControlStateNormal];
+    [btn setImage:[UIImage imageNamed:ImageCollectionResourceName(@"btn_addphoto")] forState:UIControlStateNormal];
 
     [btn addTarget:self action:@selector(buttonDidClick:) forControlEvents:UIControlEventTouchUpInside];
 
@@ -210,25 +225,42 @@
 //加号按钮点击
 - (void)buttonDidClick:(UIButton *)sender{
     
-    if ([self.customDelegate respondsToSelector:@selector(plusClick)]) {
+    if ([self.customDelegate respondsToSelector:@selector(chooseImages)]) {
         
-        [self.customDelegate performSelector:@selector(plusClick)];
+        [self.customDelegate performSelector:@selector(chooseImages)];
     }
     
 }
 
+//点击图片
+- (void)handleTapGesture:(UITapGestureRecognizer *)tap{
+
+    UIImageView *view = (UIImageView *)tap.view;
+    
+    NSInteger index = [self.imageViewArray indexOfObject:view];
+    
+    if ([self.customDelegate respondsToSelector:@selector(imageAtIndex:Images:ImageViews:)]) {
+        
+        [self.customDelegate imageAtIndex:index Images:self.images ImageViews:self.imageViewArray];
+    }
+}
+    
 //叉号按钮点击
 - (void)closeButtonDidClick:(UIButton *)sender{
 
     UIImageView *imgView = (UIImageView *)sender.superview;
 
-    [self.imgViewArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    __block NSInteger index = 0;
+    
+    [self.imageViewArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
        
         if ([obj class] == [UIImageView class] && imgView == obj) {
             
-            [self.imgViewArray removeObject:obj]; //移除控件
+            [self.imageViewArray removeObject:obj]; //移除控件
             
-            [self.imgArray removeObjectAtIndex:idx];   //移除图片
+            [self.imageArray removeObjectAtIndex:idx];   //移除图片
+            
+            index = idx;
             
             *stop = YES;
         }
@@ -238,27 +270,19 @@
     
     [self changeFrame];
     
-    if ([self.customDelegate respondsToSelector:@selector(crossClick)]) {
+    if ([self.customDelegate respondsToSelector:@selector(deleteImageAtIndex:)]) {
         
-        [self.customDelegate performSelector:@selector(crossClick)];
+        [self.customDelegate deleteImageAtIndex:index];
     }
 
 }
 
 - (void)changeFrame {
-    
-    UIButton *button = [self.imgViewArray lastObject];
-
-    if (button.isHidden == true && (self.imgViewArray.count - 1) % self.columnCount == 0 ) {
-        _oldLine = self.imgViewArray.count/ self.columnCount ;
-    }
-    else
-        _oldLine = self.imgViewArray.count/ self.columnCount + (self.imgViewArray.count % self.columnCount ? 1 : 0) ;
 
     _width = (WIDTH - (self.columnCount + 1) * MARGIN)/ self.columnCount;//每个图片的宽和高
     
     //更改所有控件的frame
-    [self.imgViewArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.imageViewArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         
         UIView *view = (UIView *)obj;
         
@@ -269,9 +293,9 @@
         view.frame = CGRectMake(column * (_width + MARGIN)+ MARGIN, MARGIN + line * (_width + MARGIN), _width, _width);
         
         //先查找最后一个按钮，然后判断是图片是否填满
-        if (idx == self.imgViewArray.count - 1) {
+        if (idx == self.imageViewArray.count - 1) {
             
-            if (self.imgViewArray.count > self.limitCount) {
+            if (self.imageViewArray.count > self.limitCount) {
                 view.hidden = true;
             }
             else
@@ -280,12 +304,22 @@
         
     }];
     
+    UIButton *button = [self.imageViewArray lastObject];
+    
+    if (button.isHidden == true && (self.imageViewArray.count - 1) % self.columnCount == 0 ) {
+        _oldLine = self.imageViewArray.count/ self.columnCount ;
+    }
+    else
+        _oldLine = self.imageViewArray.count/ self.columnCount + (self.imageViewArray.count % self.columnCount ? 1 : 0) ;
+    
     [UIView animateWithDuration:.1 animations:^{
         
-        self.contentSize = CGSizeMake(self.contentSize.width, (_width + MARGIN) * _oldLine);
+        self.contentSize = CGSizeMake(self.contentSize.width, (_width + MARGIN) * _oldLine + MARGIN);
         
         self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, (_width + MARGIN) * _oldLine + MARGIN);
         
     }];
+
 }
+
 @end

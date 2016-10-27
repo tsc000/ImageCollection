@@ -16,6 +16,7 @@
 		04D5D9401D2A90C30048117E /* ImageCollectionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D5D93F1D2A90C30048117E /* ImageCollectionTests.m */; };
 		04D5D94B1D2A90C30048117E /* ImageCollectionUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D5D94A1D2A90C30048117E /* ImageCollectionUITests.m */; };
 		04D5D95B1D2A91190048117E /* ImageCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D5D95A1D2A91190048117E /* ImageCollection.m */; };
+		59AB8A931DC1D243001F6BF2 /* ImageCollection.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 59AB8A921DC1D243001F6BF2 /* ImageCollection.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		04D5D94C1D2A90C30048117E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04D5D9591D2A91190048117E /* ImageCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCollection.h; sourceTree = "<group>"; };
 		04D5D95A1D2A91190048117E /* ImageCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCollection.m; sourceTree = "<group>"; };
+		59AB8A921DC1D243001F6BF2 /* ImageCollection.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ImageCollection.bundle; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +149,7 @@
 		04D5D9581D2A91080048117E /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				59AB8A921DC1D243001F6BF2 /* ImageCollection.bundle */,
 				04D5D9591D2A91190048117E /* ImageCollection.h */,
 				04D5D95A1D2A91190048117E /* ImageCollection.m */,
 			);
@@ -257,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04D5D9351D2A90C30048117E /* LaunchScreen.storyboard in Resources */,
+				59AB8A931DC1D243001F6BF2 /* ImageCollection.bundle in Resources */,
 				04D5D9321D2A90C30048117E /* Assets.xcassets in Resources */,
 				04D5D9301D2A90C30048117E /* Main.storyboard in Resources */,
 			);
@@ -510,6 +514,7 @@
 				04D5D9511D2A90C30048117E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		04D5D9521D2A90C30048117E /* Build configuration list for PBXNativeTarget "ImageCollectionTests" */ = {
 			isa = XCConfigurationList;
@@ -518,6 +523,7 @@
 				04D5D9541D2A90C30048117E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		04D5D9551D2A90C30048117E /* Build configuration list for PBXNativeTarget "ImageCollectionUITests" */ = {
 			isa = XCConfigurationList;
@@ -526,6 +532,7 @@
 				04D5D9571D2A90C30048117E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
